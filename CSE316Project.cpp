@@ -52,7 +52,7 @@ int timer = 0,limit;
 
 								/*ROUND ROBIN QUEUE SCHEDULLING*/
 void roundRobinProcessing() {
-	int timeQuantum = 2;       //declartion of "TIME QUANTUM"
+	int timeQuantum = 4;       //declartion of "TIME QUANTUM"
 
 	int count = 0; 
 	int n = sizeof(queue_burst)/sizeof(int);
@@ -82,7 +82,8 @@ void arrivalTimeSorting(int size)
     }
 }
 
-void priorityProcessing() {	
+void priorityProcessing() {
+	int timeSlice = 6;
 	for(int i=0;i<limit;i++) {
 		int time = process[i+1].getArrivalTime();
 		temp_burst[i] = temp_burst[i] - time;
@@ -95,7 +96,7 @@ void priorityProcessing() {
 		else {
 			process[i].setStatus(1);
 			timer++;
-			continue;
+			//continue;
 		}
 	}
 	
@@ -103,33 +104,31 @@ void priorityProcessing() {
 								/*MAIN FUNCTION*/
 int main() {
 	int number,first = 1000;
-	cout<<"Enter the Number of processes:\t";
+	cout<<"ENTER THE NUMBER OF PROCESSES:\t";
 	cin>>number;
 	limit = number;
 	for(int i=0;i<number;i++) {		
-		cout<<"-------------------------------------------------------------------------------------"<<endl;
+		cout<<"----------------------------------------------------------------------------------"<<endl;
 		cout<<"ENTER THE DETAILS OF PROCESS "<<i+1<<endl;
 		process[i].getDetails(i+1);		
 	}
 	arrivalTimeSorting(number);                     //calling the "ARRIVALTIMESORTING" function
-	//cout<<"after sort";
+	
 	for(int i=0;i<number;i++) {
 		queue_burst[i] = process[i].getBurstTime();
 		temp_burst[i] = process[i].getBurstTime();
 		queue_arrivalTime[i] = process[i].getArrivalTime();
 		queue_priority[i] = process[i].getPriority();
 	}
-	
+/********************************Fixed Priority Preemptive Scheduling******************************************************/	
 	priorityProcessing();
-	
+/********************************Round Robin Scheduling********************************************************************/	
 	roundRobinProcessing();
-	
+/*********************************Printing of the Final Table**************************************************************/	
 	cout<<"Process\tTurn Around\tWaiting Time"<<endl;
 	cout<<"--------------------------------------------------------------"<<endl;
 	for(int i=0;i<number;i++) {
 		cout<<process[i].getID()<<"\t\t"<<complitionTime[i]-queue_arrivalTime[i]<<"\t\t"<<(complitionTime[i]-queue_arrivalTime[i])-queue_burst[i]<<endl;
 	}
-	
 	return 0;
-	
 }
