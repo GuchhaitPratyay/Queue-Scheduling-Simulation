@@ -1,7 +1,6 @@
 /*LEVEL:1 PRIORITY PREEMTIVE QUEUE SCHEDULING,LEVEL:2 ROUNDROBIN QUEUE SCHEDULING*/
 #include<iostream>
 #include<algorithm>
-#include<vector>
 using namespace std;
 
 class Process {
@@ -53,7 +52,7 @@ int timer = 0,limit;
 
 								/*ROUND ROBIN QUEUE SCHEDULLING*/
 void roundRobinProcessing() {
-	int timeQuantum = 4;       //declartion of "TIME QUANTUM"
+	int timeQuantum = 2;       //declartion of "TIME QUANTUM"
 
 	int count = 0; 
 	int n = sizeof(queue_burst)/sizeof(int);
@@ -83,9 +82,7 @@ void arrivalTimeSorting(int size)
     }
 }
 
-void priorityProcessing() {
-	//int size = queue_burst.size();    //getting the size of the vector
-	
+void priorityProcessing() {	
 	for(int i=0;i<limit;i++) {
 		int time = process[i+1].getArrivalTime();
 		temp_burst[i] = temp_burst[i] - time;
@@ -122,9 +119,9 @@ int main() {
 		queue_arrivalTime[i] = process[i].getArrivalTime();
 		queue_priority[i] = process[i].getPriority();
 	}
-	//cout<<endl<<"Heloo";
+	
 	priorityProcessing();
-	cout<<endl<<"Heloo";
+	
 	roundRobinProcessing();
 	
 	cout<<"Process\tTurn Around\tWaiting Time"<<endl;
