@@ -11,7 +11,7 @@ class Process {
 		int arrivalTime;
 		int waitingTime;
 		int turnAroundTime;
-		int responseTime;
+		//int responseTime;
 		int status;
 	public:
 		void getDetails(int id) {
@@ -39,24 +39,23 @@ class Process {
 			return processId;
 		}
 		void setStatus(int a) {
-			status = a;
+			this->status = a;
 		}
 		void BURST_UPDATE(int burst) {
 			burstTime = burst;
 		}
 }process[10];
 
-int queue_burst[10],queue_arrivalTime[10],queue_priority[10],queue_turnAround[10],temp_burst[10],complitionTime[10];
+int process_burst[10],process_arrivalTime[10],process_priority[10],process_turnAround[10],temp_burst[10],complitionTime[10];
 int timer = 0,limit;
 
-
-								/*ROUND ROBIN QUEUE SCHEDULLING*/
+/**************************************ROUND ROBIN QUEUE SCHEDULLING***************************************/
 void roundRobinProcessing() {
 	int timeQuantum = 4;       //declartion of "TIME QUANTUM"
 
 	int count = 0; 
-	int n = sizeof(queue_burst)/sizeof(int);
-	int loop = *max_element(queue_burst,queue_burst+n) / timeQuantum;
+	int n = sizeof(process_burst)/sizeof(int);
+	int loop = *max_element(process_burst,process_burst+n) / timeQuantum;
 	while(loop--) {
 		for(int i=0;i<limit;i++) {
 			count++;
@@ -70,40 +69,45 @@ void roundRobinProcessing() {
 		}
 	}
 }
-								/*FUNCTION FOR SORTING USING ARRIVAL TIME*/
+/*********************************************FUNCTION FOR SORTING USING ARRIVAL TIME*************************************************/
 void arrivalTimeSorting(int size)
 {
     for(int i = 0; i < size-1; i++) {     
-        for(int j = i + 1; j < size; j++) { 
-            if(process[i].getArrivalTime() > process[j].getArrivalTime()) {
-                swap(process[i],process[j]);
+        for(int j = 0; j < size; j++) { 
+            if(process[j].getArrivalTime() > process[j+1].getArrivalTime()) {
+                swap(process[j],process[j+1]);
             }
         }   
     }
 }
-
+/*******************************************FIXED PRIORITY PRE-EMPTIVE SCHEDULING*****************************************************/
 void priorityProcessing() {
-	int timeSlice = 6;
-	for(int i=0;i<limit;i++) {
+	int timeSlice = 6;				//declaration of Time Slice
+	vector<Process> p;
+	for(int i=0;i<limit;) {
 		int time = process[i+1].getArrivalTime();
 		temp_burst[i] = temp_burst[i] - time;
-		if(queue_priority[i] <= queue_priority[i+1]) {
-			timer += queue_burst[i];
-			queue_burst[i] = 0;
-			process[i].setStatus(0);
+		timeSlice -= time;
+		if(process_priority[i] <= process_priority[i+1]) {
+			timer += timeSlice;
+			process_burst[i] -= timeSlice ;
+			process[i].setStatus(1);
 			complitionTime[i] = timer;
+			i++;
 		}
 		else {
-			process[i].setStatus(1);
-			timer++;
+			p.push_back(process[i]);
+			i++;
+			//timer++;
 			//continue;
 		}
 	}
-	
+	vector<Process>::interator i = p.begin();
+	for(;
 }
-								/*MAIN FUNCTION*/
+/********************************************************MAIN FUNCTION***********************************************************/
 int main() {
-	int number,first = 1000;
+	int number;
 	cout<<"ENTER THE NUMBER OF PROCESSES:\t";
 	cin>>number;
 	limit = number;
@@ -115,10 +119,10 @@ int main() {
 	arrivalTimeSorting(number);                     //calling the "ARRIVALTIMESORTING" function
 	
 	for(int i=0;i<number;i++) {
-		queue_burst[i] = process[i].getBurstTime();
+		process_burst[i] = process[i].getBurstTime();
 		temp_burst[i] = process[i].getBurstTime();
-		queue_arrivalTime[i] = process[i].getArrivalTime();
-		queue_priority[i] = process[i].getPriority();
+		process_arrivalTime[i] = process[i].getArrivalTime();
+		process_priority[i] = process[i].getPriority();
 	}
 /********************************Fixed Priority Preemptive Scheduling******************************************************/	
 	priorityProcessing();
