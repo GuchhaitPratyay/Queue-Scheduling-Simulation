@@ -7,7 +7,6 @@ queue<int> queue_roundRobin;
 int flag[20],arrivalTime[20],burstTime[20],priority[20],remainTime[20],finishingTime[20],fe[20],fe_flag[20],processId[20],timer,qt[20];
 int i=0,number,smallest=0,last_smallest=-1,minimum,sum=0,largeArrival=0;
 
-
 void getDetails(int i) {
 	cout<<"Enter the Process Id(1,2,3....): ";
         cin>>processId[i];
@@ -24,6 +23,7 @@ void getDetails(int i) {
         sum += burstTime[i];
         remainTime[i] = burstTime[i];
 }
+
 /*****************************************ROUND ROBIN SCHEDULING**************************************************/ 
 void roundRobinProcessing() {
       if(!queue_roundRobin.empty())
@@ -47,10 +47,10 @@ void roundRobinProcessing() {
       }
 }
 
-
 /******************************************MAIN FUNCTION*************************************************/
 int main()
 {
+//    int i=0,number,smallest=0,last_smallest=-1,minimum,sum=0,largeArrival=0;
     cout<<"ENTER THE NUMBER OF PROCESSES: ";
     cin>>number;
     cout<<endl;
@@ -70,7 +70,7 @@ int main()
             	smallest = i;
         	}
       	}
-      	if(smallest == -1 && !queue_roundRobin.empty())
+      	if(smallest==-1 && !queue_roundRobin.empty())
       	{
         	if(last_smallest !=-1 && remainTime[last_smallest]==0)
         	{
@@ -112,6 +112,8 @@ int main()
       	}
       	last_smallest=smallest;
     }
+    float averageWaiting,averageTurnAround;
+    averageWaiting = averageTurnAround = 0;
 /**********************************PRINTING THE FINAL TABLE*****************************************/    
     cout<<endl<<"**********THE FINAL TABLE(AFTER PROCESSING)**********"<<endl<<endl;
     
@@ -119,6 +121,10 @@ int main()
    	
 	for(int i=0;i<number;i++){
    		cout<<processId[i]<<"\t\t"<<fe[i]<<"\t\t"<<finishingTime[i]<<"\t\t"<<finishingTime[i]-burstTime[i]-arrivalTime[i]<<endl;
+   		averageWaiting += fe[i];
+   		averageTurnAround += (finishingTime[i]-burstTime[i]-arrivalTime[i]);
  	}
+ 	cout<<"Averge Waiting Time: "<<averageWaiting/number<<endl;
+ 	cout<<"Average Turn Around Time: "<<averageTurnAround/number<<endl;
  	return 0; 
 }
