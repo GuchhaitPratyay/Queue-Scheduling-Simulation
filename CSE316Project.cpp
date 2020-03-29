@@ -1,138 +1,124 @@
-/*LEVEL:1 PRIORITY PREEMTIVE QUEUE SCHEDULING,LEVEL:2 ROUNDROBIN QUEUE SCHEDULING*/
+/*LEVEL 1:FIXED PRIORITY PREMPTIVE SCHEDULING ,LEVEL 2:ROUND ROBIN SCHEDULING*/
 #include<iostream>
-#include<algorithm>
+#include<queue> 
 using namespace std;
 
-class Process {
-	private:
-		int processId;
-		int burstTime;
-		int priority;
-		int arrivalTime;
-		int waitingTime;
-		int turnAroundTime;
-		//int responseTime;
-		int status;
-	public:
-		void getDetails(int id) {
-			cout<<"Arrival Time:\t";
-			cin>>this->arrivalTime;
-			cout<<endl<<"Burst Time:\t";
-			cin>>this->burstTime;
-			cout<<endl<<"Priority:\t";
-			cin>>this->priority;
-			this->processId = id;
-		}
-		int getPriority() {
-			return priority;
-		}
-		int getBurstTime() {
-			return burstTime;
-		}
-		int getArrivalTime() {
-			return arrivalTime;
-		}
-		int getStatus() {
-			return status;
-		}
-		int getID() {
-			return processId;
-		}
-		void setStatus(int a) {
-			this->status = a;
-		}
-		void BURST_UPDATE(int burst) {
-			burstTime = burst;
-		}
-}process[10];
+queue<int> queue_roundRobin; 
+int flag[20],arrivalTime[20],burstTime[20],priority[20],remainTime[20],finishingTime[20],fe[20],fe_flag[20],processId[20],timer,qt[20];
+int i=0,number,smallest=0,last_smallest=-1,minimum,sum=0,largeArrival=0;
 
-int process_burst[10],process_arrivalTime[10],process_priority[10],process_turnAround[10],temp_burst[10],complitionTime[10];
-int timer = 0,limit;
 
-/**************************************ROUND ROBIN QUEUE SCHEDULLING***************************************/
+void getDetails(int i) {
+	cout<<"Enter the Process Id(1,2,3....): ";
+        cin>>processId[i];
+        cout<<"Enter Arrival Time: ";
+        cin>>arrivalTime[i];
+        cout<<"Enter Burst Time: ";
+        cin>>burstTime[i];
+        cout<<"Enter Priority: ";
+        cin>>priority[i];
+        cout<<"-------------------------------------------------------"<<endl;
+ 		if(arrivalTime[i] > largeArrival) {
+            largeArrival = arrivalTime[i];
+        }
+        sum += burstTime[i];
+        remainTime[i] = burstTime[i];
+}
+/*****************************************ROUND ROBIN SCHEDULING**************************************************/ 
 void roundRobinProcessing() {
-	int timeQuantum = 4;       //declartion of "TIME QUANTUM"
-
-	int count = 0; 
-	int n = sizeof(process_burst)/sizeof(int);
-	int loop = *max_element(process_burst,process_burst+n) / timeQuantum;
-	while(loop--) {
-		for(int i=0;i<limit;i++) {
-			count++;
-			if(temp_burst[i] != 0 && process[i].getStatus() == 1) {
-				temp_burst[i] -= timeQuantum;
-				timer += timeQuantum;
-				//queue_turnAround[i] += timeQuantum;
-				complitionTime[i] += timeQuantum;
-			}
-			
-		}
-	}
-}
-/*********************************************FUNCTION FOR SORTING USING ARRIVAL TIME*************************************************/
-void arrivalTimeSorting(int size)
-{
-    for(int i = 0; i < size-1; i++) {     
-        for(int j = 0; j < size; j++) { 
-            if(process[j].getArrivalTime() > process[j+1].getArrivalTime()) {
-                swap(process[j],process[j+1]);
+      if(!queue_roundRobin.empty())
+      {
+        if(remainTime[queue_roundRobin.front()]>0 && qt[queue_roundRobin.front()]<4)
+        {
+                qt[queue_roundRobin.front()]++;
+                remainTime[queue_roundRobin.front()]--;
+                if(remainTime[queue_roundRobin.front()]==0)
+                {
+                finishingTime[queue_roundRobin.front()]=timer+1;
+                queue_roundRobin.pop();
+                }
+                if(remainTime[queue_roundRobin.front()]!=0 && qt[queue_roundRobin.front()]==4)
+                {
+                qt[queue_roundRobin.front()]=0;
+                queue_roundRobin.push(queue_roundRobin.front());
+                queue_roundRobin.pop();
+                }
             }
-        }   
+      }
+}
+
+
+/******************************************MAIN FUNCTION*************************************************/
+int main()
+{
+    cout<<"ENTER THE NUMBER OF PROCESSES: ";
+    cin>>number;
+    cout<<endl;
+    for(i=0;i<number;i++) {       
+        getDetails(i);
     }
-}
-/*******************************************FIXED PRIORITY PRE-EMPTIVE SCHEDULING*****************************************************/
-void priorityProcessing() {
-	int timeSlice = 6;				//declaration of Time Slice
-	vector<Process> p;
-	for(int i=0;i<limit;) {
-		int time = process[i+1].getArrivalTime();
-		temp_burst[i] = temp_burst[i] - time;
-		timeSlice -= time;
-		if(process_priority[i] <= process_priority[i+1]) {
-			timer += timeSlice;
-			process_burst[i] -= timeSlice ;
-			process[i].setStatus(1);
-			complitionTime[i] = timer;
-			i++;
-		}
-		else {
-			p.push_back(process[i]);
-			i++;
-			//timer++;
-			//continue;
-		}
-	}
-	vector<Process>::interator i = p.begin();
-	for(;
-}
-/********************************************************MAIN FUNCTION***********************************************************/
-int main() {
-	int number;
-	cout<<"ENTER THE NUMBER OF PROCESSES:\t";
-	cin>>number;
-	limit = number;
-	for(int i=0;i<number;i++) {		
-		cout<<"----------------------------------------------------------------------------------"<<endl;
-		cout<<"ENTER THE DETAILS OF PROCESS "<<i+1<<endl;
-		process[i].getDetails(i+1);		
-	}
-	arrivalTimeSorting(number);                     //calling the "ARRIVALTIMESORTING" function
-	
-	for(int i=0;i<number;i++) {
-		process_burst[i] = process[i].getBurstTime();
-		temp_burst[i] = process[i].getBurstTime();
-		process_arrivalTime[i] = process[i].getArrivalTime();
-		process_priority[i] = process[i].getPriority();
-	}
-/********************************Fixed Priority Preemptive Scheduling******************************************************/	
-	priorityProcessing();
-/********************************Round Robin Scheduling********************************************************************/	
-	roundRobinProcessing();
-/*********************************Printing of the Final Table**************************************************************/	
-	cout<<"Process\tTurn Around\tWaiting Time"<<endl;
-	cout<<"--------------------------------------------------------------"<<endl;
-	for(int i=0;i<number;i++) {
-		cout<<process[i].getID()<<"\t\t"<<complitionTime[i]-queue_arrivalTime[i]<<"\t\t"<<(complitionTime[i]-queue_arrivalTime[i])-queue_burst[i]<<endl;
-	}
-	return 0;
+
+    for(;!queue_roundRobin.empty() || timer <= sum+largeArrival;timer++)
+    {
+      	minimum = 20;
+      	smallest=-1;
+      	for(int i = 0;i < number; i++)
+      	{
+        	if(arrivalTime[i] <= timer && priority[i]< minimum && remainTime[i] > 0 && !flag[i])
+        	{
+            	minimum = priority[i];
+            	smallest = i;
+        	}
+      	}
+      	if(smallest == -1 && !queue_roundRobin.empty())
+      	{
+        	if(last_smallest !=-1 && remainTime[last_smallest]==0)
+        	{
+            	finishingTime[last_smallest] = timer;
+                flag[last_smallest] = 1;
+            }
+            last_smallest=-1;
+            roundRobinProcessing();
+            continue;
+      	}
+      	else if(smallest!=-1 && !queue_roundRobin.empty() && last_smallest==-1) {
+        	if(qt[queue_roundRobin.front()]<=4 && qt[queue_roundRobin.front()]>0) {
+            	queue_roundRobin.push(queue_roundRobin.front());
+            	queue_roundRobin.pop();
+           	}
+      	}
+      	if(smallest!=-1 && !fe_flag[smallest]) {
+        	fe[smallest] = timer - arrivalTime[smallest];
+        	fe_flag[smallest] = 1;
+      	}
+      	if( smallest!=last_smallest && last_smallest!=-1 && !flag[last_smallest])
+     	{
+        	queue_roundRobin.push(last_smallest);
+        	flag[last_smallest]=1;
+      	}
+      	if(smallest !=-1)
+        remainTime[smallest]--;
+     
+      	if((smallest !=-1) && ((remainTime[smallest]==0) ||(burstTime[smallest]-remainTime[smallest])==6)) { //remaining burst
+        	if((burstTime[smallest]-remainTime[smallest])==6 && remainTime[smallest]!=0) {
+            	flag[smallest]=1;
+            	queue_roundRobin.push(smallest);
+        	}
+        	else if(smallest!=-1)
+        	{
+            	finishingTime[smallest]=timer+1;
+            	flag[smallest]=1;
+        	}
+      	}
+      	last_smallest=smallest;
+    }
+/**********************************PRINTING THE FINAL TABLE*****************************************/    
+    cout<<endl<<"**********THE FINAL TABLE(AFTER PROCESSING)**********"<<endl<<endl;
+    
+	cout<<"PROCESS ID\t"<<"WAITING TIME\t"<<"FINISH TIME\t"<<"TURNAROUND TIME\t"<<endl;
+   	
+	for(int i=0;i<number;i++){
+   		cout<<processId[i]<<"\t\t"<<fe[i]<<"\t\t"<<finishingTime[i]<<"\t\t"<<finishingTime[i]-burstTime[i]-arrivalTime[i]<<endl;
+ 	}
+ 	return 0; 
 }
